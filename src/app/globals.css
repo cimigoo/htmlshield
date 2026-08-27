@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --card: #f8fafc;
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --code-bg: #0f172a;
+  --code-fg: #e2e8f0;
+}
+
+.dark {
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --primary: #3b82f6;
+  --primary-hover: #60a5fa;
+  --muted: #94a3b8;
+  --border: #1e293b;
+  --card: #1e293b;
+  --success: #22c55e;
+  --warning: #fbbf24;
+  --danger: #ef4444;
+  --code-bg: #020617;
+  --code-fg: #cbd5e1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* Code blocks */
+pre {
+  background: var(--code-bg);
+  color: var(--code-fg);
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+:not(pre) > code {
+  background: var(--card);
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  border: 1px solid var(--border);
+}
+
+/* Syntax highlighting */
+.token-keyword { color: #c084fc; }
+.token-string { color: #86efac; }
+.token-number { color: #fbbf24; }
+.token-comment { color: #64748b; font-style: italic; }
+.token-function { color: #60a5fa; }
+.token-property { color: #f9a8d4; }
+.token-operator { color: #94a3b8; }
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
