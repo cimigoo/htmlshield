@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://htmlshield.vercel.app/sitemap.xml
