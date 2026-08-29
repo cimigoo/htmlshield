@@ -138,14 +138,18 @@ export function sanitize(
       disallowedTagsMode: "discard",
     };
   } else {
-    sanitizeOptions = { ...MODE_PRESETS[mode] };
+    const presetAttrs = MODE_PRESETS[mode].allowedAttributes;
+    const baseAttrs: Record<string, string[]> =
+      presetAttrs && typeof presetAttrs === "object"
+        ? (presetAttrs as Record<string, string[]>)
+        : {};
+    // sanitize-html has no `allowDataAttributes` option; data-* attributes are
+    // allowed via glob patterns in allowedAttributes.
+    const allowedAttributes: Record<string, string[]> = { ...baseAttrs };
     if (options.allowDataAttributes) {
-      // Add data-* glob to the global attribute allowlist.
-      sanitizeOptions.allowedAttributes = {
-        ...sanitizeOptions.allowedAttributes,
-        "*": [...(sanitizeOptions.allowedAttributes?.["*"] || []), "data-*"],
-      };
+      allowedAttributes["*"] = [...(baseAttrs["*"] || []), "data-*"];
     }
+    sanitizeOptions = { ...MODE_PRESETS[mode], allowedAttributes };
   }
 
   const sanitized = sanitizeHtml(html, sanitizeOptions);
