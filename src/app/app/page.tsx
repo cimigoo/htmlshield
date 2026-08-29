@@ -17,16 +17,18 @@ const SAMPLE_HTML = `<div class="post">
   <p style="color:red">Styled text is fine in standard mode.</p>
 </div>`;
 
+interface SanitizeStats {
+  original_length: number;
+  sanitized_length: number;
+  tags_removed: number;
+  attributes_removed: number;
+}
+
 interface SanitizeResponse {
   success: boolean;
   data?: {
     sanitized: string;
-    stats: {
-      original_length: number;
-      sanitized_length: number;
-      tags_removed: number;
-      attributes_removed: number;
-    };
+    stats: SanitizeStats;
     mode: string;
   };
   remaining?: number;
@@ -38,7 +40,7 @@ export default function PlaygroundPage() {
   const [output, setOutput] = useState("");
   const [mode, setMode] = useState("standard");
   const [loading, setLoading] = useState(false);
-  const [stats, setStats] = useState<SanitizeResponse["data"]["stats"] | null>(null);
+  const [stats, setStats] = useState<SanitizeStats | null>(null);
   const [remaining, setRemaining] = useState<number | null>(null);
   const [error, setError] = useState("");
 

@@ -117,13 +117,22 @@ export function sanitize(
   let sanitizeOptions: sanitizeHtml.IOptions;
 
   if (mode === "custom") {
-    sanitizeOptions = {
-      allowedTags: options.allowedTags || STANDARD_TAGS,
-      allowedAttributes: options.allowedAttributes || {
+    const customAllowedAttributes: Record<string, string[]> =
+      options.allowedAttributes || {
         a: LINK_ATTRS,
         "*": GLOBAL_ATTRS,
-      },
-      allowDataAttributes: options.allowDataAttributes ?? false,
+      };
+    // sanitize-html has no `allowDataAttributes` option; data-* attributes are
+    // allowed via glob patterns in allowedAttributes (e.g. { "*": ["data-*"] }).
+    if (options.allowDataAttributes) {
+      customAllowedAttributes["*"] = [
+        ...(customAllowedAttributes["*"] || []),
+        "data-*",
+      ];
+    }
+    sanitizeOptions = {
+      allowedTags: options.allowedTags || STANDARD_TAGS,
+      allowedAttributes: customAllowedAttributes,
       allowedSchemes: ["http", "https", "mailto"],
       allowProtocolRelative: false,
       disallowedTagsMode: "discard",
@@ -131,7 +140,11 @@ export function sanitize(
   } else {
     sanitizeOptions = { ...MODE_PRESETS[mode] };
     if (options.allowDataAttributes) {
-      sanitizeOptions.allowDataAttributes = true;
+      // Add data-* glob to the global attribute allowlist.
+      sanitizeOptions.allowedAttributes = {
+        ...sanitizeOptions.allowedAttributes,
+        "*": [...(sanitizeOptions.allowedAttributes?.["*"] || []), "data-*"],
+      };
     }
   }
 

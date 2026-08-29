@@ -1,6 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+interface PaddleWindow extends Window {
+  Paddle?: {
+    Checkout: {
+      open: (options: { items: Array<{ priceId: string; quantity: number }> }) => void;
+    };
+    Initialize?: (options: { token: string }) => void;
+  };
+}
 
 interface Plan {
   name: string;
@@ -77,6 +86,23 @@ const plans: Plan[] = [
 export function PricingTable() {
   const [loading, setLoading] = useState<string | null>(null);
 
+  useEffect(() => {
+    const paddleToken = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN;
+    if (!paddleToken || typeof document === "undefined") return;
+    if ((window as PaddleWindow).Paddle) return;
+    const script = document.createElement("script");
+    script.src = "https://cdn.paddle.com/paddle/v2/paddle.js";
+    script.async = true;
+    script.onload = () => {
+      try {
+        (window as PaddleWindow).Paddle?.Initialize?.({ token: paddleToken });
+      } catch (err) {
+        console.error("Paddle init error:", err);
+      }
+    };
+    document.head.appendChild(script);
+  }, []);
+
   const handleCheckout = async (planName: string) => {
     setLoading(planName);
     try {
@@ -92,8 +118,8 @@ export function PricingTable() {
         return;
       }
 
-      const Paddle = (window as any).Paddle;
-      if (Paddle) {
+      const Paddle = (window as PaddleWindow).Paddle;
+      if (Paddle?.Checkout) {
         Paddle.Checkout.open({
           items: [{ priceId, quantity: 1 }],
         });

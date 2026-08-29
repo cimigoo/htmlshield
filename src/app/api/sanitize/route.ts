@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sanitize, type SanitizeOptions } from "@/lib/sanitizer";
-import { verifyApiKey, extractApiKey, deductCredits, PLAN_CREDITS } from "@/lib/auth";
-import { getClientIp, consumeFreeRequest, getRemainingFreeRequests } from "@/lib/rate-limit";
+import { verifyApiKey, extractApiKey } from "@/lib/auth";
+import { getClientIp, consumeFreeRequest } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
