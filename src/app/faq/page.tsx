@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 
 const faqs = [
   {
@@ -38,9 +39,35 @@ const faqs = [
   },
 ];
 
+export const metadata: Metadata = {
+  title: "FAQ",
+  description:
+    "Frequently asked questions about HTMLShield — the HTML sanitizer API for XSS protection. Answers on usage, billing, security, and data privacy.",
+  alternates: { canonical: "https://htmlshield.vercel.app/faq" },
+};
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.flatMap((section) =>
+    section.items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.a,
+      },
+    }))
+  ),
+};
+
 export default function FAQPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <h1 className="text-4xl font-bold mb-2">Frequently Asked Questions</h1>
       <p className="text-lg text-[var(--muted)] mb-10">Everything you need to know about HTMLShield.</p>
 
