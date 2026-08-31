@@ -65,3 +65,32 @@ export async function listProducts(): Promise<PaddleProduct[]> {
   const data = await paddleFetch("/products");
   return data.data as PaddleProduct[];
 }
+
+export interface CreateTransactionResult {
+  id: string;
+  checkoutUrl: string;
+}
+
+// Hosted-checkout transaction: customer redirected to Paddle buy page.
+// No client-side token required.
+export async function createCheckoutTransaction(
+  priceId: string,
+  productKey: string
+): Promise<CreateTransactionResult> {
+  const body: Record<string, unknown> = {
+    items: [{ price_id: priceId, quantity: 1 }],
+    custom_data: { product: productKey },
+    checkout: {
+      url: `https://www.getdocforge.net/r?product=${productKey}`,
+    },
+  };
+  const data = await paddleFetch("/transactions", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  const tx = data.data as { id: string; checkout?: { url?: string } };
+  return {
+    id: tx.id,
+    checkoutUrl: `https://buy.paddle.com/checkout/?_ptxn=${tx.id}`,
+  };
+}

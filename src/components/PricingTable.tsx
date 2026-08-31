@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface PaddleWindow extends Window {
   Paddle?: {
@@ -86,50 +86,27 @@ const plans: Plan[] = [
 export function PricingTable() {
   const [loading, setLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    const paddleToken = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN;
-    if (!paddleToken || typeof document === "undefined") return;
-    if ((window as PaddleWindow).Paddle) return;
-    const script = document.createElement("script");
-    script.src = "https://cdn.paddle.com/paddle/v2/paddle.js";
-    script.async = true;
-    script.onload = () => {
-      try {
-        (window as PaddleWindow).Paddle?.Initialize?.({ token: paddleToken });
-      } catch (err) {
-        console.error("Paddle init error:", err);
-      }
-    };
-    document.head.appendChild(script);
-  }, []);
-
   const handleCheckout = async (planName: string) => {
+    const planKey = planName.toLowerCase();
     setLoading(planName);
     try {
-      const priceId = planName === "Starter"
-        ? process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER
-        : planName === "Pro"
-        ? process.env.NEXT_PUBLIC_PADDLE_PRICE_PRO
-        : process.env.NEXT_PUBLIC_PADDLE_PRICE_BUSINESS;
-
-      if (!priceId) {
-        alert("Payment configuration is being set up. Please try again later.");
+      const res = await fetch("/api/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: planKey }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.checkoutUrl) {
+        alert(json.error || "Could not start checkout. Please try again.");
         setLoading(null);
         return;
       }
-
-      const Paddle = (window as PaddleWindow).Paddle;
-      if (Paddle?.Checkout) {
-        Paddle.Checkout.open({
-          items: [{ priceId, quantity: 1 }],
-        });
-      } else {
-        alert("Payment system loading. Please refresh and try again.");
-      }
+      window.location.href = json.checkoutUrl;
     } catch (err) {
       console.error("Checkout error:", err);
+      alert("Network error. Please check your connection and try again.");
+      setLoading(null);
     }
-    setLoading(null);
   };
 
   return (
@@ -181,7 +158,7 @@ export function PricingTable() {
                   : "border border-[var(--primary)] text-[var(--primary)] hover:bg-blue-50 dark:hover:bg-blue-950/50"
               }`}
             >
-              {loading === plan.name ? "Loading..." : plan.cta}
+              {loading === plan.name ? "Redirecting to Paddle…" : plan.cta}
             </button>
           )}
         </div>
